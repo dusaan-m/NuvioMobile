@@ -1901,15 +1901,19 @@ export const useMetadata = ({ id, type, addonId }: UseMetadataProps): UseMetadat
         const cleanEpisodeId = episodeId.replace(/^series:/, '');
         const parts = cleanEpisodeId.split(':');
 
-        if (parts.length >= 3) {
+        if (parts[0] === 'kitsu' && parts.length === 3) {
+          // kitsu:animeId:episode — no season segment
+          showIdStr = `${parts[0]}:${parts[1]}`;
+          episodeNum = parts[2];
+          seasonNum = '';
+        } else if (parts.length >= 3) {
           episodeNum = parts.pop() || '';
           seasonNum = parts.pop() || '';
           showIdStr = parts.join(':');
         } else if (parts.length === 2) {
-          // For IDs like mal:57658:1, this is showId:episode (no season)
           showIdStr = parts[0];
           episodeNum = parts[1];
-          seasonNum = ''; // No season for this format
+          seasonNum = '';
         }
 
         if (__DEV__) console.log(`🔍 [loadEpisodeStreams] Parsed ID: show=${showIdStr}, s=${seasonNum}, e=${episodeNum}`);

@@ -99,8 +99,8 @@ const EXOPLAYER_LANG_MAP: Record<string, string> = {
 const exoMimeToCodec = (mimeType?: string): string | null => {
     if (!mimeType) return null;
     const mime = mimeType.toLowerCase();
-    if (mime.includes('eac3') || mime.includes('ec-3')) return 'EAC3';
-    if (mime.includes('ac3') || mime.includes('ac-3')) return 'AC3';
+    if (mime.includes('eac3') || mime.includes('ec-3')) return 'Dolby Digital Plus';
+    if (mime.includes('ac3') || mime.includes('ac-3')) return 'Dolby Digital';
     if (mime.includes('truehd')) return 'TrueHD';
     if (mime.includes('dts.hd') || mime.includes('dts-hd') || mime.includes('dtshd')) return 'DTS-HD';
     if (mime.includes('dts.uhd') || mime.includes('dts:x')) return 'DTS:X';
@@ -150,7 +150,15 @@ export const buildExoAudioTrackName = (t: any, i: number): string => {
     // Use mimeType from track object, fall back to encoded mimeType from title
     const mimeType = t.mimeType ?? encodedMimeType ?? null;
     const codec = exoMimeToCodec(mimeType);
-    if (codec) parts.push(codec);
+    // Only append codec if title doesn't already mention it
+    const titleLowerForCodec = rawTitle.toLowerCase();
+    const codecAlreadyInTitle = titleLowerForCodec.includes('dolby') ||
+        titleLowerForCodec.includes('dts') ||
+        titleLowerForCodec.includes('atmos') ||
+        titleLowerForCodec.includes('aac') ||
+        titleLowerForCodec.includes('truehd') ||
+        titleLowerForCodec.includes('flac');
+    if (codec && !codecAlreadyInTitle) parts.push(codec);
 
     // Use parsed channel count, fall back to bitrate-based guess for AC3/EAC3
     let ch = channelCount ?? t.channelCount ?? null;

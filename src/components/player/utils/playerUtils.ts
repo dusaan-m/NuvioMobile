@@ -123,9 +123,12 @@ export const getTrackDisplayName = (track: { name?: string, id: number, language
     return languageMatch[1];
   }
 
-  // Handle generic VLC track names like "Audio 1", "Track 1"
+  // Handle generic VLC track names like "Audio 1", "Track 1" — use language if available
   if (genericTrackMatch) {
-    return `Audio ${genericTrackMatch[2]}`;
+    if (track.language && track.language !== 'Unknown') {
+      return formatLanguage(track.language);
+    }
+    return track.name;
   }
 
   // Check for common language patterns in the name
